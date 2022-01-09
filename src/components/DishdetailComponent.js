@@ -1,10 +1,14 @@
-import React from 'react';
-import { Card, CardImg,  CardText, CardBody, CardTitle, BreadcrumbItem,Breadcrumb } from 'reactstrap';
+import React,{Component} from 'react';
+import { FaPen } from "react-icons/fa";
+import { Label,Row,Modal,ModalBody, ModalHeader,FormGroup,Button,Card, CardImg,  CardText, CardBody, CardTitle, BreadcrumbItem,Breadcrumb } from 'reactstrap';
+import { Errors,LocalForm, Control} from 'react-redux-form';
 import { Link} from 'react-router-dom';
+import { Loading } from './LoadingComponent';
 
+const maxLength = (len) => (val) => !(val) || (val.length <= len);
+const minLength = (len) => (val) => val && (val.length >= len);
 
-function RenderComments({comments}){
-	console.log(comments);
+function RenderComments({comments,addComment, dishId}){
 	const commentaire = comments.map((comm) => {
 		return (
 			<ul key={comm.id} className="list-unstyled">
@@ -19,6 +23,7 @@ function RenderComments({comments}){
 			<div  className="col-12 col-md-5 m-1">
 				<h4>Comments</h4>
 				{commentaire}
+				<CommentForm dishId={dishId} addComment={addComment} />
 			</div>
 		);
 	}else{
@@ -39,8 +44,26 @@ function RenderDish({dish}){
 		</div>);
 };
 const Dishdetail = (props)=>{
+	if(props.isLoading){
+		return(
+			<div className='container'>
+				<div className='row'>
+					<Loading/>
+				</div>
+			</div>
+		);
 
-	if(props.dish !=null){
+	}else if(props.errmesg){
+		return(
+			<div className='container'>
+				<div className='row'>
+					<h4>{props.errmesg}</h4>
+				</div>
+			</div>
+		);
+
+
+	}else if(props.dish !=null){
 		return (
 			<div className="container">
 				<div className="row">
@@ -55,7 +78,7 @@ const Dishdetail = (props)=>{
 				</div>
 				<div className="row">
 					<RenderDish dish={props.dish}/>
-					<RenderComments comments={props.comments}/>
+					<RenderComments comments={props.comments} addComment={props.addComment} dishId={props.dish.id}/>
 				</div>
 			</div>
 
@@ -65,6 +88,99 @@ const Dishdetail = (props)=>{
 	}
 }
 
+class CommentForm extends Component{
+	constructor(props){
+		super(props);
+		this.state = {
+			isModalCommentsOpen : false,
+			name: '',
+			rating: '',
+			comment: ''
+
+		}
+		
+		this.toggleModalComments = this.toggleModalComments.bind(this);
+		this.handleSubmit = this.handleSubmit.bind(this);
+	}
+	handleSubmit(values){
+		this.setState({ isModalCommentsOpen : !this.state.isModalCommentsOpen});
+		        this.props.addComment(this.props.dishId, values.rating, values.author, values.comment);
+
+
+
+	}
+	toggleModalComments(){
+		this.setState({
+			isModalCommentsOpen : !this.state.isModalCommentsOpen 
+		});
+	}
+
+
+	render(){
+
+		return(
+			<div className='container'>
+				<div className='row'>
+					<Button outline onClick={this.toggleModalComments}> 
+						<FaPen/>	Submit Comment 
+					</Button>
+				</div>
+				<Modal isOpen={this.state.isModalCommentsOpen} toggle={this.toggleModalComments}>
+					<ModalHeader toggle={this.toggleModal}>Submit Comment </ModalHeader>
+					<ModalBody>
+						<LocalForm onSubmit={(value) =>this.handleSubmit(value)}>
+							<Label htmlFor="rating" >Rating</Label>
+							<Row className='form-group m-1'>
+								<Control.select model='.rating'  name='rating'
+									className='form-control'>
+									<option>1 </option>
+									<option>2 </option>
+									<option>3 </option>
+									<option>4 </option>
+									<option>5 </option>
+								</Control.select>
+
+							</Row>
+							<Row className="form-group m-1">
+								<Label htmlFor="author" >Your Name</Label>
+								<Control.text model=".author" id="author" name="author"
+									placeholder="Your Name"
+									className="form-control"
+									validators={{
+										minLength: minLength(3), maxLength: maxLength(15)
+									}}
+								/>
+								<Errors
+									className="text-danger"
+									model=".author"
+									show="touched"
+									messages={{
+										minLength: 'Must be greater than 2 characters',
+										maxLength: 'Must be 15 characters or less'
+									}}
+								/>
+							</Row>
+							<FormGroup row className='m-1'>
+								<Label  htmlFor="comment" >Comment</Label>
+								<Control.textarea model='.comment' name="comment" id="comment" rows="12" 
+									className='form-control'/>
+							</FormGroup>
+							<FormGroup row className='m-1'>
+								<Button color="primary" type='submit'> Submit</Button>
+							</FormGroup>
+						</LocalForm>
+
+					</ModalBody>
+				</Modal>
+			</div>
+
+
+
+		);
+
+	};
+
+};
 
 
 export default Dishdetail;
