@@ -4,11 +4,12 @@ import { Label,Row,Modal,ModalBody, ModalHeader,FormGroup,Button,Card, CardImg, 
 import { Errors,LocalForm, Control} from 'react-redux-form';
 import { Link} from 'react-router-dom';
 import { Loading } from './LoadingComponent';
+import { baseUrl} from '../shared/baseUrl';
 
 const maxLength = (len) => (val) => !(val) || (val.length <= len);
 const minLength = (len) => (val) => val && (val.length >= len);
 
-function RenderComments({comments,addComment, dishId}){
+function RenderComments({comments,postComment, dishId}){
 	const commentaire = comments.map((comm) => {
 		return (
 			<ul key={comm.id} className="list-unstyled">
@@ -23,7 +24,7 @@ function RenderComments({comments,addComment, dishId}){
 			<div  className="col-12 col-md-5 m-1">
 				<h4>Comments</h4>
 				{commentaire}
-				<CommentForm dishId={dishId} addComment={addComment} />
+				<CommentForm dishId={dishId} postComment={postComment} />
 			</div>
 		);
 	}else{
@@ -35,7 +36,7 @@ function RenderDish({dish}){
 	return(
 		<div  className="col-12 col-md-5 m-1">
 			<Card >
-				<CardImg  src={dish.image} alt={dish.name} />
+				<CardImg  src={baseUrl + dish.image} alt={dish.name} />
 				<CardBody>
 					<CardTitle>{dish.name}</CardTitle>
 					<CardText>{dish.description}</CardText>
@@ -78,7 +79,7 @@ const Dishdetail = (props)=>{
 				</div>
 				<div className="row">
 					<RenderDish dish={props.dish}/>
-					<RenderComments comments={props.comments} addComment={props.addComment} dishId={props.dish.id}/>
+					<RenderComments comments={props.comments} postComment={props.postComment} dishId={props.dish.id}/>
 				</div>
 			</div>
 
@@ -104,7 +105,7 @@ class CommentForm extends Component{
 	}
 	handleSubmit(values){
 		this.setState({ isModalCommentsOpen : !this.state.isModalCommentsOpen});
-		        this.props.addComment(this.props.dishId, values.rating, values.author, values.comment);
+		        this.props.postComment(this.props.dishId, values.rating, values.author, values.comment);
 
 
 
