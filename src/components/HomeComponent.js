@@ -38,10 +38,10 @@ function  Home(props){
 
 				</div>
 				<div className="col-12 col-md m-1">
-					<RenderCard  item={props.leader} />
+					<RenderCard className="col-12 col-md m-1" item={props.promotion}  isLoading={props.promosLoading} errMess={props.promosErrmesg}  />
 				</div>
 				<div className="col-12 col-md m-1">
-					<RenderCard className="col-12 col-md m-1" item={props.promotion}  isLoading={props.promosLoading} errMess={props.promosErrmesg}  />
+					<RenderCard  item={props.leader} />
 				</div>
 			</div>
 		</div>
